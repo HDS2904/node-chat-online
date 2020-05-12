@@ -1,8 +1,8 @@
 //IMPORTACIONES
 const express = require('express')
+const http = require('http')    //definiendo nuevo servidor
 const path = require('path')
 const socketIO = require('socket.io')
-const http = require('http')    //definiendo nuevo servidor
 
 //LEVANTANDO EL SERVIDOR
 const app = express()
@@ -10,7 +10,7 @@ let server = http.createServer(app)   // Complementando nuevo servidor http con 
 
 const port = process.env.PORT || 3000
 
-//IBTENIENDO LA RUTA PUBLIC Y HABILITANDOLA
+//OBTENIENDO LA RUTA PUBLIC Y HABILITANDOLA
 const publicPath = path.resolve(__dirname, '../public')
 app.use(express.static(publicPath))
 

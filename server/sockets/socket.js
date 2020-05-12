@@ -1,33 +1,49 @@
 //IMPORTACIONES
 const { io } = require('../server')
+const { Users } = require('../classes/users')
+const { createMessage } = require('../utils/utilidades')
+
+//INICIALIZACIÓN DE LA CLASE
+const usuarios = new Users
 
 //ACCIONES CON EL FRONT-END y BACKEND
-io.on('connection', (client) => {   //Reporta la conexion de usuario
+io.on('connection', (client) => {
 
-    client.emit('bienvenida', { //Envio (emit)
-        usuario:'Adm Jonathan',
-        mensaje: 'Bienvenido a este espacio'
-    })
-
-    client.on('disconnect', () => {     //usando la variable anterior del usuario verifica la desconexion de usuario
-        console.log('Se desconecto el usuario')
-    })
-
-    client.on('enviarMensaje', (mensaje, callback) => { //Escucha (on) 
-        console.log(mensaje)
-        
-        //asignando mensaje a la referencia de la funcion segun el exito
-        if(mensaje.usuario){
-            client.broadcast.emit('bienvenida', `Se agrego ha: ${mensaje.usuario}`)     //BROADCAST: envia mensaje a todos los usuarios
-            callback({
-                resp: 'se ejecuto bien'
-            })
-        }else {
-            callback({
-                resp: 'se ejecuto mal el disparo'
+    //Abrir chat
+    client.on('OpenChat', ( data, callback ) => {
+        if( !data.name || !data.room){
+            return callback({
+                error: true,
+                message: 'El nombre y sala es necesario'
             })
         }
+
+        client.join(data.room) //Agregar el usuario a la sala
+
+        usuarios.insertPerson( client.id, data.name, data.room )
+        client.broadcast.to(data.room).emit('listPeople', usuarios.getPeopleRoom(data.room) )
+        callback(usuarios.getPeopleRoom(data.room))
     })
-    //nota: callback es referencia de la funcion de confirmacion del emisor
+
+    //Envio de mensaje a todos los usuarios
+    client.on('crearMensaje', ( message ) => {
+        let person = usuarios.getPerson( client.id )
+        let messageUser = createMessage( person.name, message )
+        client.broadcast.to(person.room).emit('crearMensaje', messageUser)
+    })
+
+    //reporte desconexion o salida
+    client.on('disconnect', () => {
+        let personDelet = usuarios.deletePerson( client.id )
+        client.broadcast.to(personDelet.room).emit('crearMensaje', createMessage( 'Administrador', `${personDelet.name} abandono el chat` ))
+        client.broadcast.to(personDelet.room).emit('listPeople', usuarios.getPeopleRoom( personDelet.room ))
+    })
+
+    //Mensajes privados
+    client.on('mensajePrivado', ( data ) => {
+        let person = usuarios.getPerson( client.id )
+        client.broadcast.to(data.forId).emit('mensajePrivado', createMessage( person.name, data.message) )
+    })
+
 })
 
