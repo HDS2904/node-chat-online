@@ -18,7 +18,8 @@ var usuario = {
 //Reporte de usuarios en el chat
 socket.on('connect', function(){
     socket.emit('OpenChat', usuario, function( res ){
-        console.log('Usuarios Conectados', res);
+        // console.log('Usuarios Conectados', res);
+        renderUsers( res )
     })
 })
 
@@ -29,12 +30,15 @@ socket.on('disconnect', function(){
 
 //Escucha de avisos del administrador
 socket.on('crearMensaje', function( message ){
-    console.log('Servidor', message)
+    // console.log('Servidor', message)
+    renderMessage( message, false )
+    scrollBottom()
 })
 
 //Escucha las entradas de usuarion o salidas
 socket.on('listPeople', function( data ) {
-    console.log(data);
+    // console.log(data);
+    renderUsers( data )
 })
 
 

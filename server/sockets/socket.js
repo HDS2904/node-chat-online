@@ -22,14 +22,16 @@ io.on('connection', (client) => {
 
         usuarios.insertPerson( client.id, data.name, data.room )
         client.broadcast.to(data.room).emit('listPeople', usuarios.getPeopleRoom(data.room) )
+        client.broadcast.to(data.room).emit('crearMensaje', createMessage( 'Administrador', `${data.name} se unio al chat` ))
         callback(usuarios.getPeopleRoom(data.room))
     })
 
     //Envio de mensaje a todos los usuarios
-    client.on('crearMensaje', ( message ) => {
+    client.on('crearMensaje', ( data, callback ) => {
         let person = usuarios.getPerson( client.id )
-        let messageUser = createMessage( person.name, message )
+        let messageUser = createMessage( person.name, data.message )
         client.broadcast.to(person.room).emit('crearMensaje', messageUser)
+        callback( messageUser )
     })
 
     //reporte desconexion o salida
