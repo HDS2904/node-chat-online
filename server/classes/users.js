@@ -30,6 +30,18 @@ class Users {
         this.personas = this.personas.filter( per => per.id != id)
         return personDelet
     }
+
+    searchPerson( cadena ){
+        let pers = []
+        let cadenaMin = cadena.toLowerCase()
+        for (const per of this.personas) {
+            let name = per.name.toLowerCase()
+            if(name.indexOf(cadenaMin) !== -1){
+                pers.push(per)
+            }
+        }
+        return pers
+    }
 }
 
 

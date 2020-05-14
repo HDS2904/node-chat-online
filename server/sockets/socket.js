@@ -47,5 +47,11 @@ io.on('connection', (client) => {
         client.broadcast.to(data.forId).emit('mensajePrivado', createMessage( person.name, data.message) )
     })
 
+    client.on('search1', ( data, callback ) => {
+        let pers = usuarios.searchPerson( data.cadena )
+        callback( pers )
+        // client.emit('search1', usuarios.searchPerson(data))
+    })
+
 })
 

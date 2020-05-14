@@ -6,15 +6,16 @@ var divUsers = $('#divUsuarios')
 var formSend = $('#formEnviar')
 var txtmessage = $('#txtMensaje')
 var divChatBox = $('#divChatbox')
+var searchContac = $('#formulario')
 
 var name = params.get('name')
 var room = params.get('room')
 
 //FUNCIONES
 function renderUsers( personas ){
-    
+
     var html = ''
-    
+
     html += '<li>'
     html +=     '<a href="javascripthtml:void(0)" class="active"> Chat de <span>'+ params.get('room') +'</span></a>'
     html += '</li>'
@@ -28,7 +29,9 @@ function renderUsers( personas ){
     divUsers.html(html)
 }
 
+
 function renderMessage( message, emi ){
+
     var html = ''
     var date = new Date(message.fecha)
     var hour = date.getHours() + ':' + date.getMinutes()
@@ -38,6 +41,7 @@ function renderMessage( message, emi ){
     if( message.name === 'Administrador'){
         admEmi = 'danger'
     }
+
     if( emi ){
         html += '<li class="reverse">'
         html += '    <div class="chat-content">'
@@ -102,9 +106,19 @@ formSend.on('submit', function( e ){
         message: txtmessage.val()
     }, function(message){
         txtmessage.val('').focus()
-        console.log(message)
         renderMessage(message, true)
         scrollBottom()
+    })
+})
+
+
+
+
+searchContac.on('keyup',function(){
+    socket.emit('search1', {
+        cadena: searchContac.val()
+    }, function( pers ){
+        renderUsers( pers )
     })
 })
 
